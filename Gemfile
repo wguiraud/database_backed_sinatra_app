@@ -17,3 +17,7 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 
 ruby '3.2.2'
+
+gem "minitest", "~> 5.25"
+
+gem "rack-test", "~> 2.2"
