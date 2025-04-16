@@ -4,8 +4,9 @@ require "sinatra/content_for"
 require "erubi"
 
 configure do
+  require_relative 'config/environments/test' if test?
   enable :sessions
-  set :session_secret, ENV["SESSION_SECRET"]
+  set session_secret: ENV['SESSION_SECRET']
   set :erb, :escape_html => true
 end
 
@@ -41,8 +42,19 @@ helpers do
   end
 end
 
+class SessionPersistance
+
+  def initialize(session)
+    @session = session
+  end
+
+  def find_list(id)
+    @session[:lists].find{ |list| list[:id] == id }
+  end
+end
+
 def load_list(id)
-  list = session[:lists].find{ |list| list[:id] == id }
+  list = @storage.find_list(id)
   return list if list
 
   session[:error] = "The specified list was not found."
@@ -71,7 +83,9 @@ def next_element_id(elements)
   max + 1
 end
 
+
 before do
+  @storage = SessionPersistance.new(session)
   session[:lists] ||= []
 end
 
